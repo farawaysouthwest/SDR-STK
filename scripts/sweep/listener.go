@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"net"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -41,6 +40,8 @@ func NewListener(args *Args, forward Forward) (Listener, error) {
 		return nil, err
 	}
 
+	fmt.Println("server started on", server.Addr().String())
+
 	return &listener{
 		args:       args,
 		server:     server,
@@ -73,15 +74,15 @@ func (r *listener) Listen() error {
 
 		fmt.Println("connection request accepted")
 		go r.processClient(connection)
+
+		defer r.forward.Close()
 	}
+
 }
 
 func (r *listener) processClient(connection net.Conn) {
 
-	out, err := exec.Command(strings.Join(r.optionArgs, " ")).Output()
-	if err != nil {
-		fmt.Println("Error starting power instance", err.Error())
-	}
+	out := CreateRTLProcess(r.optionArgs)
 
 	defer connection.Close()
 
@@ -90,7 +91,7 @@ func (r *listener) processClient(connection net.Conn) {
 	for {
 		if out != nil {
 
-			input := strings.Split(string(out), ", ")
+			input := strings.Split(string(*out), ", ")
 
 			step := input[4]
 			db := input[6:]

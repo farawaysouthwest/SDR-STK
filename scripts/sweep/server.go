@@ -31,6 +31,7 @@ func NewServer(args *Args, connection Listener) Server {
 }
 
 func (r *server) Start() error {
+
 	err := r.ingressSocket.Listen()
 	if err != nil {
 		return err
