@@ -6,6 +6,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,10 +27,10 @@ type listener struct {
 }
 
 type Listener interface {
-	// test
+	// Start proxy listener.
 	Listen() error
 
-	//test
+	// Close proxy listener connection.
 	Close() error
 }
 
@@ -40,7 +41,7 @@ func NewListener(args *Args, forward Forward) (Listener, error) {
 		return nil, err
 	}
 
-	fmt.Println("server started on", server.Addr().String())
+	fmt.Println("proxy server started and listening on", server.Addr().String())
 
 	return &listener{
 		args:       args,
@@ -82,9 +83,13 @@ func (r *listener) Listen() error {
 
 func (r *listener) processClient(connection net.Conn) {
 
-	out := CreateRTLProcess(r.optionArgs)
-
 	defer connection.Close()
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	out := CreateRTLProcess(r.optionArgs, &wg)
+	wg.Wait()
 
 	lowFreq := float64(0)
 

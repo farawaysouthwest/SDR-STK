@@ -10,8 +10,6 @@ type topFreq struct {
 	dBm  float64
 }
 
-type channel struct{}
-
 type server struct {
 	args Args
 

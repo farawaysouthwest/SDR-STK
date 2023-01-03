@@ -1,11 +1,8 @@
 package main
 
 import (
-	"C"
 	"fmt"
 	"net"
-)
-import (
 	"sync"
 )
 
@@ -31,7 +28,7 @@ func NewForward(args *Args) (Forward, error) {
 		return nil, err
 	}
 
-	fmt.Println("connected to client device on", socketConn.LocalAddr().String())
+	fmt.Println("proxy server connected to rtl_tcp on", socketConn.LocalAddr().String())
 
 	return forward{
 		connection: socketConn,
